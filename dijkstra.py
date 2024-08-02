@@ -51,7 +51,68 @@ def dijkstra(grid, start, end):
     
     return path
 
-def visualize(grid, path, filename="output.png"):
+def get_path(previous, end):
+    path = []
+    node = end
+    while node is not None:
+        path.append(node)
+        node = previous[node[0], node[1]]
+    path.reverse()
+    return path
+
+def dijkstra_with_steps(grid, start, end):
+    rows, cols = grid.shape
+    distance = np.full((rows, cols), np.inf)
+    previous = np.full((rows, cols), None)
+    distance[start] = 0
+    
+    # Priority queue (min-heap)
+    queue = []
+    heapq.heappush(queue, (0, start))
+    
+    path_steps = []  # List to capture steps for animation
+
+    distances = {}  # Dictionary to store distances
+
+    while queue:
+        current_distance, current_node = heapq.heappop(queue)
+        x, y = current_node
+        
+        if (x, y) == end:
+            break
+        
+        # Add the current distance to distances dictionary
+        distances[(x, y)] = current_distance
+        
+        # Add the current state to path_steps
+        path_steps.append({'path': get_path(previous, end)})
+        
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:  # 4-connected neighbors
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < rows and 0 <= ny < cols and grid[nx, ny] == 0:
+                new_distance = current_distance + 1
+                if new_distance < distance[nx, ny]:
+                    distance[nx, ny] = new_distance
+                    previous[nx, ny] = (x, y)
+                    heapq.heappush(queue, (new_distance, (nx, ny)))
+    
+    # Final step to add the last path state
+    path_steps.append({'path': get_path(previous, end)})
+    
+    return path_steps, distances
+
+
+def visualize_distance(grid, distances, filename="distance_map.png"):
+    fig, ax = plt.subplots()
+    distance_matrix = np.full(grid.shape, np.nan) #initialize matrix
+    for (x, y), distance in distances.items():
+        distance_matrix[x, y] = distance
+    cax = ax.imshow(distance_matrix, cmap='viridis', interpolation='nearest')
+    fig.colorbar(cax, ax=ax, label='Distance from start') #add color bar
+    plt.savefig(filename)
+    plt.show()
+
+def visualize_path(grid, path, filename="output.png"):
     fig, ax = plt.subplots()
     ax.imshow(grid, cmap=plt.cm.binary)
 
@@ -63,12 +124,19 @@ def visualize(grid, path, filename="output.png"):
     plt.savefig(filename)
     plt.show()
 
+
 if __name__ == "__main__":
     grid = load_grid_from_csv('grid_and_obstacles.csv')
-    start = (0, 0)  # Starting point: top-left corner
-    
-    # Automatically determine the bottom-right corner as the end point
+    start = (0, 0)
     end = (grid.shape[0] - 1, grid.shape[1] - 1)
     
-    path = dijkstra(grid, start, end)
-    visualize(grid, path)
+    path_steps, distances = dijkstra_with_steps(grid, start, end)
+    
+    # Extract the final path
+    final_path = path_steps[-1]['path']
+    
+    # Generate and save the distance map
+    visualize_distance(grid, distances, filename="distance_map.png")
+    
+    # Generate and save the path map
+    visualize_path(grid, final_path, filename="path_map.png")
