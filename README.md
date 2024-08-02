@@ -13,11 +13,11 @@
 
 The path map shows the route found by Dijkstra's algorithm from the start point to the endpoint.
 
-![Path Map](assets/code_Imgs/path_map.png)
+![Path Map](code_Imgs/path_map.png)
 
 The distance map visualizes the distance from the start point to every other point on the grid.
 
-![Distance Map](assets/code_Imgs/distance_map.png)
+![Distance Map](code_Imgs/distance_map.png)
 
 ## CSV File Input and pathfinding
 
