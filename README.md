@@ -1,7 +1,7 @@
 # SUPPORT U 
 # Smart UAV Program for the Population by Offering Resources and Tools to the Unhoused
 
-## Dependicies:
+## Dependencies:
 ### pip3 install numpy
 ### pip3 install matplotlib 
 
@@ -25,7 +25,7 @@ The distance map visualizes the distance from the start point to every other poi
 
 ## Output
 
-### The file will reuturn the path that it follows like so:
+### The file will return the path that it follows like so:
 ### Path: [[0 0]
 ###   [1 0]
 ###   [2 0]
